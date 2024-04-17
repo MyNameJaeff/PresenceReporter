@@ -1,4 +1,4 @@
-import { getDatabase, set, ref, get } from "firebase/database";
+import { getDatabase, set, ref } from "firebase/database";
 
 export default function RegisterClass() {
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -13,19 +13,9 @@ export default function RegisterClass() {
 		event.currentTarget.reset();
 
 		const db = getDatabase();
-		const dbRef = ref(db, "classes");
-		const data: { className: string; classCode: string }[] = [];
-		await get(dbRef)
-			.then((snapshot) => {
-				if (snapshot.exists()) {
-					data.push(...snapshot.val());
-				}
-				data.push({ className: className, classCode: classCode });
-			})
-			.catch((error) => {
-				console.error(error);
-			});
-		console.log(data);
+		const dbRef = ref(db, `classRegister/${classCode}`);
+		const data = { className: className, classCode: classCode, students: [""] };
+
 		await set(dbRef, data)
 			.then(() => {
 				console.log("Data saved successfully!");

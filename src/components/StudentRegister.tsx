@@ -10,6 +10,7 @@ interface StudentRegisterProps {
 export default function StudentRegister() {
 	const [studentList, setStudentList] = useState<string[]>([]);
 	const [classList, setClassList] = useState<StudentRegisterProps[]>([]);
+	const [optionalCheckbox, setOptionalCheckbox] = useState<boolean>(false);
 
 	const handleInputChange = (event: React.ChangeEvent<HTMLDivElement>) => {
 		const innerText = event.target.innerText;
@@ -17,8 +18,7 @@ export default function StudentRegister() {
 		setStudentList(textArray);
 	};
 
-	const handleAddStudent = (className: string) => {
-		console.log(className);
+	const handleAddStudent = (classCode: string, optionalCheckbox: boolean) => {
 		//* Check if the input is empty
 		if (studentList.length === 0 || studentList[0] === "") {
 			alert("You have to input something!");
@@ -27,20 +27,46 @@ export default function StudentRegister() {
 
 		//* Remove empty strings
 		const students = studentList.filter((student) => student !== "");
-		console.log(students);
+		const dataStucture: {
+			className: string;
+			classCode: string;
+			students: string[];
+		} = { className: "", classCode: "", students: [] };
 
 		//* Add students to the database
 		const db = getDatabase();
-		const classRef = ref(db, className);
-		set(classRef, {
-			students: students,
+		const dbRef = ref(db, `classRegister/${classCode}`);
+		get(dbRef).then((snapshot) => {
+			if (snapshot.exists()) {
+				const data = snapshot.val();
+				//* Removes the empty string from the array
+				data.students = data.students.filter(
+					(student: string) => student !== "",
+				);
+				dataStucture.className = data.className;
+				dataStucture.classCode = data.classCode;
+
+				if (!optionalCheckbox) {
+					dataStucture.students = students;
+				} else {
+					dataStucture.students = [...data.students, ...students];
+				}
+				set(dbRef, dataStucture)
+					.then(() => {
+						console.log("Data saved successfully!");
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
 		});
 	};
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		const className = event.currentTarget.classes.value;
-		handleAddStudent(className);
+		const optionalCheckbox = event.currentTarget.optionalCheckbox.checked;
+		handleAddStudent(className, optionalCheckbox);
 
 		// Clear the form
 		event.currentTarget.reset();
@@ -53,7 +79,7 @@ export default function StudentRegister() {
 
 	React.useEffect(() => {
 		const db = getDatabase();
-		const dbRef = ref(db, "classes");
+		const dbRef = ref(db, "classRegister");
 		get(dbRef).then((snapshot) => {
 			if (snapshot.exists()) {
 				const data = snapshot.val();
@@ -77,12 +103,9 @@ export default function StudentRegister() {
 						name="classes"
 						className="p-1 ml-2 rounded bg-gray-700"
 					>
-						{classList.map((selectedClass: StudentRegisterProps) => (
-							<option
-								key={selectedClass.className}
-								value={selectedClass.className}
-							>
-								{selectedClass.className}
+						{Object.entries(classList).map(([key, value]) => (
+							<option key={key} value={value.classCode}>
+								{value.className}
 							</option>
 						))}
 					</select>
@@ -101,6 +124,32 @@ export default function StudentRegister() {
 						value={"Register"}
 						className="bg-gray-700 px-8 py-4 rounded-xl hover:bg-gray-600 transition duration-200 ease-in-out border-2 border-gray-500 hover:border-gray-400 text-white font-bold cursor-pointer"
 					/>
+					<div className="px-5">
+						<div className="flex border-b-2 border-white">
+							<label htmlFor="optionalCheckbox" className="text-lg grow">
+								Add
+							</label>
+							<input
+								type="checkbox"
+								className="ml-6"
+								name="optionalCheckbox"
+								onChange={() => setOptionalCheckbox(!optionalCheckbox)}
+								checked={optionalCheckbox === false}
+							/>
+						</div>
+						<div className="flex">
+							<label htmlFor="optionalCheckbox2" className="text-lg grow">
+								Overwrite
+							</label>
+							<input
+								type="checkbox"
+								className="ml-6"
+								name="optionalCheckbox2"
+								onChange={() => setOptionalCheckbox(!optionalCheckbox)}
+								checked={optionalCheckbox}
+							/>
+						</div>
+					</div>
 				</div>
 			</form>
 		</div>
