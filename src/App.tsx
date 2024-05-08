@@ -4,8 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import React from "react";
 
 import ReportPrecence from "./components/ReportPrecence";
-
 import AdminPage from "./components/AdminPage";
+import ReportsPage from "./components/ReportsPage";
 
 function App() {
 	const firebaseConfig = {
@@ -29,6 +29,10 @@ function App() {
 		{
 			path: "/",
 			element: <ReportPrecence />,
+		},
+		{
+			path: "/admin/reports",
+			element: <ReportsPage />,
 		},
 	]);
 

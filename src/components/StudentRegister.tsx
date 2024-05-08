@@ -1,15 +1,10 @@
 import React from "react";
 import { useState } from "react";
 import { getDatabase, ref, set, get } from "firebase/database";
+import type { StudentRegisterProps } from "./AdminPage";
 
-interface StudentRegisterProps {
-	className: string;
-	classCode: string;
-}
-
-export default function StudentRegister() {
+export default function StudentRegister({ setClassList, classList }: { setClassList: (data: never[]) => void, classList: StudentRegisterProps[] }) {
 	const [studentList, setStudentList] = useState<string[]>([]);
-	const [classList, setClassList] = useState<StudentRegisterProps[]>([]);
 	const [optionalCheckbox, setOptionalCheckbox] = useState<boolean>(false);
 
 	const handleInputChange = (event: React.ChangeEvent<HTMLDivElement>) => {
@@ -82,11 +77,11 @@ export default function StudentRegister() {
 		const dbRef = ref(db, "classRegister");
 		get(dbRef).then((snapshot) => {
 			if (snapshot.exists()) {
-				const data = snapshot.val();
+				const data: never[] = snapshot.val(); // Specify the type of 'data' as 'never[]'
 				setClassList(data);
 			}
 		});
-	}, []);
+	}, [setClassList]);
 
 	return (
 		<div className=" w-2/6 h-5/6 p-5 flex flex-col justify-around pb-10">
@@ -103,9 +98,9 @@ export default function StudentRegister() {
 						name="classes"
 						className="p-1 ml-2 rounded bg-gray-700"
 					>
-						{Object.entries(classList).map(([key, value]) => (
-							<option key={key} value={value.classCode}>
-								{value.className}
+						{Object.entries(classList).map(([key, value]: [string, unknown]) => (
+							<option key={key} value={(value as StudentRegisterProps).classCode}>
+								{(value as StudentRegisterProps).className}
 							</option>
 						))}
 					</select>
