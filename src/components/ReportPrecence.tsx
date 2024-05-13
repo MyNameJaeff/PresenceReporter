@@ -148,11 +148,11 @@ export default function ReportPrecence() {
 								handleCodeSubmit(event);
 							}}
 						>
-							{Object.entries(classList).map(([key, value]) => (
+							{Object.entries(classList).length > 0 ? Object.entries(classList).map(([key, value]) => (
 								<option key={key} value={value.classCode}>
 									{value.className}
 								</option>
-							))}
+							)) : <option>No classes registered</option>}
 						</select>
 					</form>
 					{selectedClass.className !== "" && (
@@ -168,7 +168,7 @@ export default function ReportPrecence() {
 								className="pt-2 flex flex-col items-center justify-around w-full h-full"
 							>
 								<ul className="w-5/6 h-5/6 overflow-scroll font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-									{students.map((student, index) => (
+									{students[0] !== "" ? students.map((student, index) => (
 										<li
 											// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 											key={index}
@@ -183,7 +183,7 @@ export default function ReportPrecence() {
 												className="p-2 w-5 h-5 ml-auto rounded-lg border border-gray-200 dark:border-gray-400 dark:bg-gray-700 dark:text-white hover:bg-gray-200 hover:border-gray-400 transition duration-200 ease-in-out cursor-pointer"
 											/>
 										</li>
-									))}
+									)): <p className="p-4" >No students registered</p>}
 								</ul>
 								<input
 									type="submit"
@@ -205,7 +205,11 @@ export default function ReportPrecence() {
 					)}
 				</div>
 			) : (
-				<Login setIsAuthenticated={setLoggedIn} passcode="password" storageKey="loggedIn" />
+				<Login
+					setIsAuthenticated={setLoggedIn}
+					passcode="password"
+					storageKey="loggedIn"
+				/>
 			)}
 		</div>
 	);

@@ -124,6 +124,7 @@ export default function ReportsPage() {
 									{date}
 								</li>
 							))}
+                            {Object.keys(reports).length === 0 && <p>No reports available</p>}
 						</ul>
 						<button
 							type="button"
@@ -146,6 +147,7 @@ export default function ReportsPage() {
 									{classCode}
 								</li>
 							))}
+                            {Object.keys(classes).length === 0 && <p>No classes selected/available</p>}
 						</ul>
 					</div>
 					<div className="w-4/6 h-full">
@@ -256,7 +258,7 @@ export default function ReportsPage() {
 								/>
 							</form>
 						) : (
-							""
+							<p className="p-2">Select a class to view reports</p>
 						)}
 					</div>
 				</div>

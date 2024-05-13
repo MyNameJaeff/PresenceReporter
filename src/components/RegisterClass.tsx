@@ -1,4 +1,4 @@
-import { getDatabase, set, ref } from "firebase/database";
+import { getDatabase, set, ref, get } from "firebase/database";
 import React from "react";
 import type { StudentRegisterProps } from "./AdminPage";
 
@@ -33,6 +33,18 @@ export default function RegisterClass({ classList }: { classList: StudentRegiste
 		const db = getDatabase();
 		const dbRef = ref(db, `classRegister/${classCode}`);
 		const data = { className: className, classCode: classCode, students: [""] };
+
+		//* Check if the class code already exists
+		await get(dbRef)
+			.then((snapshot) => {
+				if (snapshot.exists()) {
+					alert("Class code already exists!");
+					return;
+				}
+			})
+			.catch((error) => {
+				console.error(error);
+			});
 
 		await set(dbRef, data)
 			.then(() => {

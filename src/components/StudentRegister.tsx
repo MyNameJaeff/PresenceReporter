@@ -3,8 +3,17 @@ import { useState } from "react";
 import { getDatabase, ref, set, get } from "firebase/database";
 import type { StudentRegisterProps } from "./AdminPage";
 
-export default function StudentRegister({ setClassList, classList }: { setClassList: (data: never[]) => void, classList: StudentRegisterProps[] }) {
+export default function StudentRegister({
+	setClassList,
+	classList,
+}: {
+	setClassList: (data: never[]) => void;
+	classList: StudentRegisterProps[];
+}) {
 	const [studentList, setStudentList] = useState<string[]>([]);
+	const [textPlaceholder, setTextPlaceholder] = useState<string>(
+		"Register students...",
+	);
 	const [optionalCheckbox, setOptionalCheckbox] = useState<boolean>(false);
 
 	const handleInputChange = (event: React.ChangeEvent<HTMLDivElement>) => {
@@ -70,6 +79,7 @@ export default function StudentRegister({ setClassList, classList }: { setClassL
 			"studentList",
 		) as HTMLDivElement;
 		studentList.innerText = "";
+		setTextPlaceholder("Students Registered");
 	};
 
 	React.useEffect(() => {
@@ -98,14 +108,27 @@ export default function StudentRegister({ setClassList, classList }: { setClassL
 						name="classes"
 						className="p-1 ml-2 rounded bg-gray-700"
 					>
-						{Object.entries(classList).map(([key, value]: [string, unknown]) => (
-							<option key={key} value={(value as StudentRegisterProps).classCode}>
-								{(value as StudentRegisterProps).className}
-							</option>
-						))}
+						{Object.entries(classList).length > 0 ? (
+							Object.entries(classList).map(
+								([key, value]: [string, unknown]) => (
+									<option
+										key={key}
+										value={(value as StudentRegisterProps).classCode}
+									>
+										{(value as StudentRegisterProps).className}
+									</option>
+								),
+							)
+						) : (
+							<option>No classes registered</option>
+						)}
 					</select>
 				</div>
+				<p className="text-lg absolute ml-2 mt-2 text-white text-opacity-80 pointer-events-none">
+					{textPlaceholder}
+				</p>
 				<div
+					onFocus={() => setTextPlaceholder("")}
 					contentEditable
 					onInput={handleInputChange}
 					spellCheck="false"
