@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import StudentRegister from "./StudentRegister";
 import RegisterClass from "./RegisterClass";
 import { useNavigate } from "react-router-dom";
-import AdminLogin from "./AdminLogin";
+import Login from "./Login";
 
 export interface StudentRegisterProps {
 	className: string;
@@ -18,7 +18,7 @@ export default function AdminPage() {
 	//* Check if the user is authenticated when the component mounts
 	React.useEffect(() => {
 		const handleAuth = () => {
-			if (localStorage.getItem("authenticated") === "true") {
+			if (localStorage.getItem("adminLoggedIn") === "true") {
 				setIsAuthenticated(true);
 			}
 		};
@@ -34,7 +34,7 @@ export default function AdminPage() {
 	//* Logout function
 	const logout = () => {
 		if (confirm("Are you sure you want to logout?")) {
-			localStorage.removeItem("authenticated");
+			localStorage.removeItem("adminLoggedIn");
 			setIsAuthenticated(false);
 		}
 	}
@@ -55,7 +55,7 @@ export default function AdminPage() {
 					</div>
 				</div>
 			) : (
-				<AdminLogin setIsAuthenticated={setIsAuthenticated} />
+				<Login setIsAuthenticated={setIsAuthenticated} passcode="admin" storageKey="adminLoggedIn" />
 			)}
 		</>
 	);

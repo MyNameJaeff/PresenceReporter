@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { getDatabase, ref, set, get } from "firebase/database";
+import Login from "./Login";
 
 interface classDataType {
 	className: string;
@@ -204,13 +205,7 @@ export default function ReportPrecence() {
 					)}
 				</div>
 			) : (
-				<button
-					type="button"
-					onClick={handleLogin}
-					className="bg-blue-400 px-4 py-2 rounded-lg text-white hover:bg-blue-500 transition duration-200 ease-in-out cursor-pointer"
-				>
-					Login
-				</button>
+				<Login setIsAuthenticated={setLoggedIn} passcode="password" storageKey="loggedIn" />
 			)}
 		</div>
 	);

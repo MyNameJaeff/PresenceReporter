@@ -1,10 +1,10 @@
-export default function AdminLogin({ setIsAuthenticated }: { setIsAuthenticated: (data: boolean) => void }) {
+export default function Login({ setIsAuthenticated, passcode, storageKey }: { setIsAuthenticated: (data: boolean) => void, passcode: string, storageKey: string}) {
     const checkLogin = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const password = event.currentTarget.password.value;
 
-        if (password === "admin") {
-            localStorage.setItem("authenticated", "true");
+        if (password === passcode) {
+            localStorage.setItem(storageKey, "true");
             setIsAuthenticated(true);
         } else {
             alert("Wrong password!");
