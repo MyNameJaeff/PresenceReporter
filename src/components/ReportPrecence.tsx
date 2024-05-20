@@ -8,6 +8,7 @@ interface classDataType {
 	className: string;
 	classCode: string;
 	students: string[];
+	teacherCode: string;
 }
 interface StudentRegisterProps {
 	className: string;
@@ -21,6 +22,7 @@ export default function ReportPrecence() {
 		className: "",
 		classCode: "",
 		students: [],
+		teacherCode: "",
 	});
 	const [students, setStudents] = useState<string[]>([]);
 	const [classCodes, setClassCodes] = useState<string[]>([]);
@@ -122,6 +124,7 @@ export default function ReportPrecence() {
 					students: studentsPrecence,
 					className: selectedClass.className,
 					classCode: selectedClass.classCode,
+					teacherCode: localStorage.getItem("classCode"),
 				};
 				set(dbRef, data)
 					.then(() => {

@@ -32,7 +32,7 @@ export default function RegisterClass({ classList }: { classList: StudentRegiste
 		//* Add the class to the database
 		const db = getDatabase();
 		const dbRef = ref(db, `classRegister/${classCode}`);
-		const data = { className: className, classCode: classCode, students: [""] };
+		const data = { className: className, classCode: classCode, students: [""]};
 
 		//* Check if the class code already exists
 		await get(dbRef)

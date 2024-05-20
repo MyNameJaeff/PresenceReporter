@@ -7,6 +7,7 @@ type ReportProps = {
 	className: string;
 	classCode: string;
 	students: { present: string[]; absent: string[] };
+	teacherCode: string;
 };
 
 export default function ReportsPage() {
@@ -14,7 +15,7 @@ export default function ReportsPage() {
 	const [selectedClassCode, setSelectedClassCode] = React.useState<string>("");
 	const [reports, setReports] = React.useState<ReportProps[]>([]);
 	const [classes, setClasses] = React.useState<ReportProps[]>([]);
-    const [selectedDate, setSelectedDate] = React.useState<string>("");
+	const [selectedDate, setSelectedDate] = React.useState<string>("");
 
 	const navigate = useNavigate();
 
@@ -48,7 +49,7 @@ export default function ReportsPage() {
 	}, [classes]);
 
 	const handleDateClick = (date: string) => {
-        setSelectedDate(date);
+		setSelectedDate(date);
 		const getClasses = async () => {
 			const db = getDatabase();
 			const dbRef = ref(db, `reports/${date}`);
@@ -94,17 +95,17 @@ export default function ReportsPage() {
 		}
 		classObject.students.absent = absentStudents;
 		classObject.students.present = presentStudents;
-		
-        // Update the database with the new object
-        const db = getDatabase();
-        const dbRef = ref(db, `reports/${selectedDate}/${selectedClassCode}`);
-        set(dbRef, classObject).then(() => {
-            alert("Report submitted successfully!");
-        }
-        ).catch((error) => {
-            alert(`Failed to submit report: ${error}`);
-        });
 
+		// Update the database with the new object
+		const db = getDatabase();
+		const dbRef = ref(db, `reports/${selectedDate}/${selectedClassCode}`);
+		set(dbRef, classObject)
+			.then(() => {
+				alert("Report submitted successfully!");
+			})
+			.catch((error) => {
+				alert(`Failed to submit report: ${error}`);
+			});
 	};
 
 	return (
@@ -124,7 +125,7 @@ export default function ReportsPage() {
 									{date}
 								</li>
 							))}
-                            {Object.keys(reports).length === 0 && <p>No reports available</p>}
+							{Object.keys(reports).length === 0 && <p>No reports available</p>}
 						</ul>
 						<button
 							type="button"
@@ -147,7 +148,9 @@ export default function ReportsPage() {
 									{classCode}
 								</li>
 							))}
-                            {Object.keys(classes).length === 0 && <p>No classes selected/available</p>}
+							{Object.keys(classes).length === 0 && (
+								<p>No classes selected/available</p>
+							)}
 						</ul>
 					</div>
 					<div className="w-4/6 h-full">
@@ -159,14 +162,24 @@ export default function ReportsPage() {
 							>
 								<div className="h-[95%] overflow-scroll">
 									<div className="w-full px-1 flex justify-between">
-										<h1 className="text-xl ">
-											{/* Had to add the check if undefined if the user wanted to switch between reports because react is a bit slow */}
-											{classes[selectedClassCode as unknown as number] !==
-											undefined
-												? classes[selectedClassCode as unknown as number]
-														.className
-												: ""}
-										</h1>
+										<div>
+											<h1 className="text-xl ">
+												{/* Had to add the check if undefined if the user wanted to switch between reports because react is a bit slow */}
+												{classes[selectedClassCode as unknown as number] !==
+												undefined
+													? classes[selectedClassCode as unknown as number]
+															.className
+													: ""}
+											</h1>
+											<h1>
+												Reported by:
+												{classes[selectedClassCode as unknown as number] !==
+												undefined
+													? classes[selectedClassCode as unknown as number]
+															.teacherCode
+													: ""}
+											</h1>
+										</div>
 										<div className="flex flex-row w-1/6 justify-around">
 											<h1 className="text-green-300">Present</h1>
 											<h1 className="text-red-300">Absent</h1>
