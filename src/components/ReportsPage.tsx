@@ -265,7 +265,7 @@ export default function ReportsPage() {
 			) : (
 				<Login
 					setIsAuthenticated={setIsAuthenticated}
-					passcode="admin"
+					passcode={["admin"]}
 					storageKey="adminLoggedIn"
 				/>
 			)}

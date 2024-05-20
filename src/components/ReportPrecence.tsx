@@ -23,35 +23,36 @@ export default function ReportPrecence() {
 		students: [],
 	});
 	const [students, setStudents] = useState<string[]>([]);
+	const [classCodes, setClassCodes] = useState<string[]>([]);
 
 	React.useEffect(() => {
 		const db = getDatabase();
 		const dbRef = ref(db, "classRegister");
-		get(dbRef).then((snapshot) => {
+
+		//* Fetch class data from database
+		const fetchClassData = async () => {
+			const snapshot = await get(dbRef);
 			if (snapshot.exists()) {
 				const data: Record<string, StudentRegisterProps> = snapshot.val();
 				const dataArray = Object.values(data);
 				setClassList(dataArray);
 				checkClassCode(dataArray[0].classCode);
+				const codes = dataArray.map((item) => item.classCode);
+				setClassCodes(codes);
 			}
-		});
+		};
 
-		localStorage.getItem("loggedIn") === "true"
-			? setLoggedIn(true)
-			: handleLogin();
+		//* Check if the user is logged in when the component mounts
+		const initialize = async () => {
+			await fetchClassData();
+			const loggedIn = localStorage.getItem("loggedIn") === "true";
+			if (loggedIn) {
+				setLoggedIn(true);
+			}
+		};
+
+		initialize();
 	}, []);
-
-	const handleLogin = () => {
-		const passwordEntry = window.prompt("Enter the password to login");
-		if (passwordEntry !== "password") {
-			//! This is a temporary password for testing purposes only, it should be changed to a more secure password
-			alert("Incorrect password!");
-			setLoggedIn(false);
-			return;
-		}
-		localStorage.setItem("loggedIn", "true");
-		setLoggedIn(true);
-	};
 
 	const checkClassCode = (classCode: string) => {
 		//* Check if the class code exists
@@ -140,15 +141,26 @@ export default function ReportPrecence() {
 		<div className="h-full w-screen flex flex-col items-center p-5">
 			{loggedIn ? (
 				<div className="h-full w-full">
-					<ClassesDropdown classList={classList} handleCodeSubmit={handleCodeSubmit} />
+					<div className="flex">
+						<h1 className="text-3xl text-center w-5/6">Report Precence</h1>
+						<ClassesDropdown
+							classList={classList}
+							handleCodeSubmit={handleCodeSubmit}
+						/>
+					</div>
 					{selectedClass.className !== "" && (
-						<StudentList students={students} selectedClass={selectedClass} handleClassSubmit={handleClassSubmit} setLoggedIn={setLoggedIn} />
+						<StudentList
+							students={students}
+							selectedClass={selectedClass}
+							handleClassSubmit={handleClassSubmit}
+							setLoggedIn={setLoggedIn}
+						/>
 					)}
 				</div>
 			) : (
 				<Login
 					setIsAuthenticated={setLoggedIn}
-					passcode="password"
+					passcode={classCodes}
 					storageKey="loggedIn"
 				/>
 			)}
