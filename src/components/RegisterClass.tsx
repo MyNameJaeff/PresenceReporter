@@ -32,7 +32,7 @@ export default function RegisterClass({ classList }: { classList: StudentRegiste
 		//* Add the class to the database
 		const db = getDatabase();
 		const dbRef = ref(db, `classRegister/${classCode}`);
-		const data = { className: className, classCode: classCode, students: [""]};
+		const data = { className: className, classCode: classCode, students: [""] };
 
 		//* Check if the class code already exists
 		await get(dbRef)
@@ -57,7 +57,7 @@ export default function RegisterClass({ classList }: { classList: StudentRegiste
 	};
 
 	return (
-		<div className="w-1/6 h-2/6 p-5">
+		<div className="w-1/6 h-3/6 p-5">
 			<h1 className="text-xl border-b-2 border-white pl-2">Register Classes</h1>
 			<form
 				onSubmit={handleSubmit}

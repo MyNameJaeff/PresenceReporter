@@ -136,7 +136,7 @@ export default function StudentRegister({
 					className="overflow-scroll border border-solid border-gray-500 p-2 rounded-lg text-start h-5/6"
 					id="studentList"
 				/>
-				<div className="w-full flex justify-center h-1/6 items-center">
+				<div className="w-full flex justify-center h-1/6 items-center mt-4">
 					<input
 						type="submit"
 						value={"Register"}

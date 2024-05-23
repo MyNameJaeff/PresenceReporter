@@ -4,6 +4,8 @@ import Login from "./Login";
 import StudentList from "./StudentList";
 import ClassesDropdown from "./ClassesDropdown";
 
+//TODO Add a check if there is a rapport then check based on the date if there is a rapport for the class check the boxes of students that are present
+//TODO Make it possible to re-send a rapport if the teacher made a mistake or if the teacher forgot to send the rapport
 interface classDataType {
 	className: string;
 	classCode: string;

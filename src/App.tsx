@@ -36,7 +36,7 @@ function App() {
 	]);
 
 	return (
-		<div className="w-screen h-screen">
+		<div className="w-screen h-screen ">
 			<React.StrictMode>
 				<RouterProvider router={router} />
 			</React.StrictMode>
