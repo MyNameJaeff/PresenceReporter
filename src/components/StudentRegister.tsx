@@ -3,6 +3,11 @@ import { useState } from "react";
 import { getDatabase, ref, set, get } from "firebase/database";
 import type { StudentRegisterProps } from "./AdminPage";
 
+export type StudentType = {
+	student: string;
+	present: boolean;
+};
+
 export default function StudentRegister({
 	setClassList,
 	classList,
@@ -10,7 +15,7 @@ export default function StudentRegister({
 	setClassList: (data: never[]) => void;
 	classList: StudentRegisterProps[];
 }) {
-	const [studentList, setStudentList] = useState<string[]>([]);
+	const [studentList, setStudentList] = useState<StudentType[]>([]);
 	const [textPlaceholder, setTextPlaceholder] = useState<string>(
 		"Register students...",
 	);
@@ -19,22 +24,33 @@ export default function StudentRegister({
 	const handleInputChange = (event: React.ChangeEvent<HTMLDivElement>) => {
 		const innerText = event.target.innerText;
 		const textArray = innerText.split("\n");
-		setStudentList(textArray);
+		const tempArray = [];
+		for (const text of textArray) {
+			const studentToObject = { student: text, present: false };
+			tempArray.push(studentToObject);
+		}
+		console.log(tempArray);
+		setStudentList(tempArray);
 	};
+
+	React.useEffect(() => {
+		console.log(studentList);
+	}, [studentList]);
 
 	const handleAddStudent = (classCode: string, optionalCheckbox: boolean) => {
 		//* Check if the input is empty
-		if (studentList.length === 0 || studentList[0] === "") {
+		if (studentList.length === 0 || studentList[0].student === "") {
 			alert("You have to input something!");
 			return;
 		}
 
 		//* Remove empty strings
-		const students = studentList.filter((student) => student !== "");
+		console.log(studentList);
+		const students = studentList.filter((student) => student.student !== "");
 		const dataStucture: {
 			className: string;
 			classCode: string;
-			students: string[];
+			students: StudentType[];
 		} = { className: "", classCode: "", students: [] };
 
 		//* Add students to the database
@@ -43,6 +59,7 @@ export default function StudentRegister({
 		get(dbRef).then((snapshot) => {
 			if (snapshot.exists()) {
 				const data = snapshot.val();
+				console.log(data, studentList);
 				//* Removes the empty string from the array
 				data.students = data.students.filter(
 					(student: string) => student !== "",

@@ -3,18 +3,24 @@ import { getDatabase, ref, set, get } from "firebase/database";
 import Login from "./Login";
 import StudentList from "./StudentList";
 import ClassesDropdown from "./ClassesDropdown";
+import type { StudentType } from "./StudentRegister";
 
 //TODO Add a check if there is a rapport then check based on the date if there is a rapport for the class check the boxes of students that are present
 //TODO Make it possible to re-send a rapport if the teacher made a mistake or if the teacher forgot to send the rapport
 interface classDataType {
 	className: string;
 	classCode: string;
-	students: string[];
+	students: StudentType[];
 	teacherCode: string;
 }
 interface StudentRegisterProps {
 	className: string;
 	classCode: string;
+}
+
+interface StudentPrecence {
+	student: string;
+	present: boolean;
 }
 
 export default function ReportPrecence() {
@@ -26,7 +32,7 @@ export default function ReportPrecence() {
 		students: [],
 		teacherCode: "",
 	});
-	const [students, setStudents] = useState<string[]>([]);
+	const [students, setStudents] = useState<StudentType[]>([]);
 	const [classCodes, setClassCodes] = useState<string[]>([]);
 
 	React.useEffect(() => {
@@ -40,7 +46,7 @@ export default function ReportPrecence() {
 				const data: Record<string, StudentRegisterProps> = snapshot.val();
 				const dataArray = Object.values(data);
 				setClassList(dataArray);
-				checkClassCode(dataArray[0].classCode);
+				checkClassCode(dataArray[0].classCode, dataArray[0].className);
 				const codes = dataArray.map((item) => item.classCode);
 				setClassCodes(codes);
 			}
@@ -58,16 +64,31 @@ export default function ReportPrecence() {
 		initialize();
 	}, []);
 
-	const checkClassCode = (classCode: string) => {
+	const checkClassCode = async (classCode: string, className: string) => {
 		//* Check if the class code exists
 		//* If it does, set the class code
 		//* If it doesn't, alert the user
+		const date = new Date();
+		const formattedDate = `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
+
 		const db = getDatabase();
+		const doesReportExist = ref(db, `reports/${formattedDate}/${className}`);
+		await get(doesReportExist).then((snapshot) => {
+			if (snapshot.exists()) {
+				setSelectedClass(snapshot.val());
+				console.log("Rapport already exists for this class!");
+				console.log(snapshot.val().students);
+				setStudents(snapshot.val().students);
+				return;
+			}
+		});
 		const classRef = ref(db, `classRegister/${classCode}`);
 		get(classRef)
 			.then((snapshot) => {
 				if (snapshot.exists()) {
 					setSelectedClass(snapshot.val());
+					console.log("Class code exists!");
+					console.log(snapshot.val().students);
 					setStudents(snapshot.val().students);
 				} else {
 					alert("Class code does not exist!");
@@ -80,26 +101,28 @@ export default function ReportPrecence() {
 
 	const handleCodeSubmit = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		setStudents([]);
-		checkClassCode(event.target.value);
+		checkClassCode(event.target.value, event.target.selectedOptions[0].text);
 	};
 
 	const handleClassSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		alert("Rapport skickad!");
 		const students = selectedClass.students;
-		const studentsPrecence: { present: string[]; absent: string[] } = {
-			present: [],
-			absent: [],
+
+		const studentsPrecence: { students: StudentPrecence[] } = {
+			students: [],
 		};
 		students.forEach((student, index) => {
-			const checkbox = event.currentTarget[student + index];
+			const checkbox = event.currentTarget[student.student + index];
 			if (checkbox.checked) {
-				studentsPrecence.present.push(student);
+				studentsPrecence.students.push({ student: student.student, present: true });
 			} else {
-				studentsPrecence.absent.push(student);
+				studentsPrecence.students.push({ student: student.student, present: false });
 			}
 		});
-		selectedClass.students = studentsPrecence.present;
+		selectedClass.students = studentsPrecence.students.map((student) => ({
+			student: student.student,
+			present: student.present,
+		}));
 		const date = new Date();
 		const formattedDate = `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
 		const db = getDatabase();
@@ -111,34 +134,24 @@ export default function ReportPrecence() {
 			if (snapshot.exists()) {
 				//* If there is already a report for this class on this date we add the new data to the existing data as an array
 				const data = snapshot.val();
-				data.students.absent.push(studentsPrecence.absent);
-				data.students.present.push(studentsPrecence.present);
-				set(dbRef, data)
-					.then(() => {
-						console.log("Data saved successfully!");
-					})
-					.catch((error) => {
-						console.error(error);
-					});
+				console.log(data);
 			} else {
 				//* If there is no report for this class on this date we create a new report
 				const data = {
-					students: studentsPrecence,
+					students: studentsPrecence.students,
 					className: selectedClass.className,
 					classCode: selectedClass.classCode,
 					teacherCode: localStorage.getItem("classCode"),
 				};
 				set(dbRef, data)
 					.then(() => {
-						console.log("Data saved successfully!");
+						alert("Rapport skickad!");
 					})
 					.catch((error) => {
 						console.error(error);
 					});
 			}
 		});
-
-		console.log(studentsPrecence);
 		event.currentTarget.reset();
 	};
 
