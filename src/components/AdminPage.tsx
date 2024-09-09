@@ -12,7 +12,7 @@ export interface StudentRegisterProps {
 
 export default function AdminPage() {
 	const navigate = useNavigate();
-	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
 	const [classList, setClassList] = useState<StudentRegisterProps[]>([]);
 
 	//* Check if the user is authenticated when the component mounts
